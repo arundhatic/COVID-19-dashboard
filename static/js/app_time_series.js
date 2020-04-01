@@ -113,8 +113,6 @@ getDataTimeSeries(selectedCountry)
 
 init();
 
-getDataTimeSeriesTable(countriesList);
-
 function getDataTimeSeries(country){
 
 var filters = {
