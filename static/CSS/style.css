@@ -35,16 +35,16 @@ text-align: center;
   display: inline;
  
  }
+ div.countrySelected{
+   padding: 10px;
+   border: 0.5px solid #40291C;
+  border-radius: 4px;
+	background-color: #88C1F2;
+}
 
- .chartBody{
-
- 
- }
-
-
-
-div.countrySelected{
-
+ #selCountry{
+  background-color: #fac934;
+  width: 120px !important;
 }
 
 .countrySelected h6{
@@ -60,10 +60,10 @@ div.countrySelected{
   position: absolute;
   width: 100px;
   height: 50px;
-  padding: 2px;
+  padding: 3px;
   font: 10px sans-serif;
   text-align: center;
-  background: #88C1F2;
+  background: white;
   border: 0;
   border-radius: 10px;
 }
