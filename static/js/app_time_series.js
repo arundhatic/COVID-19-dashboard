@@ -36,37 +36,6 @@ function convertArrayObjects(obj){
   return arr;
 }
 
-function keyValuePairArr(arrObj){
- // console.log(arrObj)
-  let arrNewObj = [];
-  
-  for(let i = 0; i < arrObj.length; i++){
-     let newObj = {}
-    // console.log(arrObj[i]);
-    // console.log(Object.keys(arrObj[i])[0]);
-     newObj['date'] = Object.keys(arrObj[i])[0];
-     newObj['active'] = +Object.values(arrObj[i])[0]
-     arrNewObj.push(newObj)
-  }
-   // console.log(arrNewObj);
-    return arrNewObj
-}
-
-// assumption is both arrays are of equal length and has the share the same key
-function addKeyObjArr(arrObjConfirmed, arrObjDeath){
-   let arrNewObj = [];
-   
-   for(let i = 0; i < arrObjConfirmed.length; i++){
-      let newObj = {}
-      newObj['date'] = Object.keys(arrObjConfirmed[i])[0];
-      newObj['active'] = +Object.values(arrObjConfirmed[i])[0] - +Object.values(arrObjDeath[i])[0];
-      newObj['death'] = +Object.values(arrObjDeath[i])[0];
-      arrNewObj.push(newObj)
-   }
-     //console.log(arrNewObj);
-     return arrNewObj
- }
-
  function creatNewArrOfObjects(arrDate, arrObjConfirmed, arrObjDeath, arrObjRecovered){
   let arrNewObj = [];
   
@@ -144,6 +113,8 @@ getDataTimeSeries(selectedCountry)
 
 init();
 
+getDataTimeSeriesTable(countriesList);
+
 function getDataTimeSeries(country){
 
 var filters = {
@@ -186,7 +157,7 @@ Promise.all([
   var arrDatesRecovered = convertArrayObjects(sumArrayRecovered);
     
   var arrDatesConfirmedDeathCount = creatNewArrOfObjects(arrDates[0],arrDatesConfirmed,arrDatesDeath, arrDatesRecovered);
-  console.log(arrDatesConfirmedDeathCount)
+  //console.log(arrDatesConfirmedDeathCount)
 
   const ticksDate = arrDatesConfirmedDeathCount.slice(Math.max(arrDatesConfirmedDeathCount.length - 20, 0))
 
@@ -212,83 +183,7 @@ function optionChanged(newCountry) {
 /* charts */
 /* ---------------------------------------------- */
 
-
 /* create a bar chart */
-function barChart(data){
-
-//console.log(d3.max(data, d => d.congfirmed))
-
-  // set the dimensions and margins of the graph
-var margin = {top: 10, right: 30, bottom: 90, left: 40},
-width = 600 - margin.left - margin.right,
-height = 450 - margin.top - margin.bottom;
-padding = 100; // space around the chart, not including labels
-
-// append the svg object to the body of the page
-var svg = d3.select("#barChart")
-  .append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-    .attr("transform",
-          "translate(" + margin.left + "," + margin.top + ")");
-
-  // X axis
-var x = d3.scaleBand()
-.range([ 0, width ])
-.domain(data.map(function(d) { return d.date; }))
-.padding(0.2);
-svg.append("g")
-.attr("transform", "translate(0," + height + ")")
-.call(d3.axisBottom(x))
-.selectAll("text")
-  .attr("transform", "translate(-10,0)rotate(-45)")
-  .style("text-anchor", "end");
-
-
-// Add Y axis
-var y = d3.scaleLinear()
-  .domain([0, d3.max(data, d => d.active)])
-  .range([ height, 0]);
-svg.append("g")
-  .call(d3.axisLeft(y));
-
-  // now add titles to the axes
-  svg.append("g").append("text")
-  .attr("text-anchor", "middle") 
-  .attr("class", "axis-text") // this makes it easy to centre the text as the transform is applied to the anchor
-  .attr("transform", "translate("+ (padding/4) +","+(height/4)+")rotate(-90)")  // text is drawn off the screen top left, move down and out and rotate
-  .text("confirmed cases");
-
-  svg.append("g").append("text")
-  .attr("text-anchor", "middle")  // this makes it easy to centre the text as the transform is applied to the anchor
-  .attr("transform", "translate("+ (width/2) +","+(height+(padding/1.5))+")")  // centre below axis
-  .text("Date");
- 
-
-// Bars
-var cirfirmedGroup = svg.selectAll("mybar")
-.data(data)
-.enter()
-.append("rect")
-.attr("x", function(d) { return x(d.date); })
-.attr("width", x.bandwidth())
-.attr("fill", "#8C2A2A")
-// no bar at the beginning thus:
-.attr("height", function(d) { return height - y(0); }) // always equal to 0
-.attr("y", function(d) { return y(0); })
-
-  // Animation
-svg.selectAll("rect")
-.transition()
-.duration(800)
-.delay(800)
-.attr("y", function(d) { return y(d.confirmed); })
-.attr("height", function(d) { return height - y(d.confirmed); })
-.delay(function(d,i){console.log(i) ; return(i*100)})
-
-}
-
 function barStackedChart(data){
   // to replace the svg that already exists
   d3.select("#barChart").selectAll("svg").remove();

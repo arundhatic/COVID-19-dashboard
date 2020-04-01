@@ -1,26 +1,16 @@
 
-function updatesStates(){
+function getDataUS(){
 
-    const urlStates = "nyt_covid-19_us/us-states.json";
-  
-    d3.json(urlStates).then(statesData => {
-       // console.log(statesData)
-        
-}).catch(err => console.log(err));  
+   Promise.all([
+      d3.json('nyt_covid-19_us/us-states.json'),
+      d3.json('nyt_covid-19_us/us-counties.json')
+   ]).then(([states,counties]) =>  {
+  // console.log(states);
+  // console.log(counties);
+
+}).catch(function(err) {
+   console.log(err)
+})
 }
-
-function updatesCounties(){
-
-  const urlCounties = "nyt_covid-19_us/us-counties.json";
-
-  d3.json(urlCounties).then(countiesData => {
-     // console.log(countiesData)
-      
-}).catch(err => console.log(err));  
-}
-
-
-
-updatesStates();
-updatesCounties();
   
+getDataUS();
