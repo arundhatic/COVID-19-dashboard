@@ -189,7 +189,7 @@ function barStackedChart(data){
    // set the dimensions and margins of the graph
     var margin = {top: 10, right: 30, bottom: 50, left: 50},
     width = 800 - margin.left - margin.right,
-    height = 450 - margin.top - margin.bottom;
+    height = 450 - margin.top - margin.bottom, padding = 40;
 
     // append the svg object to the body of the page
     var svg = d3.select("#barChart")
@@ -203,7 +203,7 @@ function barStackedChart(data){
       // List of subgroups = header of the csv files = soil condition here
   var subgroups = Object.keys(data[0]).slice(1)
 
-  //console.log(subgroups)
+  console.log(subgroups)
 
   // List of groups = species here = value of the first column called group -> I show them on the X axis
   var groups = d3.map(data, function(d){return(d.date)}).keys()
@@ -219,14 +219,32 @@ function barStackedChart(data){
     .attr("transform", "translate(0," + height + ")")
     .call(d3.axisBottom(x).tickSizeOuter(-10)).selectAll("text")
     .attr("transform", "translate(-10,0)rotate(-45)")
-    .style("text-anchor", "end");
+    .style("text-anchor", "end").attr("class", "axis");
 
   // Add Y axis
   var y = d3.scaleLinear()
     .domain([0, d3.max(data, d=> (d.active + d.death + d.recovered))])
     .range([ height, 0 ]);
   svg.append("g")
-    .call(d3.axisLeft(y));
+    .call(d3.axisLeft(y)).attr("class", "axis");
+
+    svg.append("text")
+        .attr("transform", `translate(${width -10 },${height +30 })`)
+        .attr("class", "axis-text")
+        .text("Dates")
+
+    svg.append("text")
+        .attr("transform", `translate(15,50 )rotate(270)`)
+        .attr("class", "axis-text")
+        .text("Cases")
+
+    svg.append('g')
+          .attr('transform', `translate(${width / 2}, ${padding - 20})`)
+          .append('text')
+          .attr('x', 0)
+          .attr('y', 20)
+          .classed('aText active', true)
+          .text('COVID-19 Cases');
 
   // color palette = one color per subgroup
   var color = d3.scaleOrdinal()
@@ -287,6 +305,38 @@ function barStackedChart(data){
       .on("mouseout", function(d) {
         tooltip.style("display", "none");
       })
+
+      var legend = svg.append('g')
+                .attr('class', 'legend')
+                .attr('transform', 'translate(' + (padding + 12) + ', 0)');
+
+            legend.selectAll('rect')
+                .data(subgroups)
+                .enter()
+                .append('rect')
+                .attr('x', 0)
+                .attr('y', function(d, i){
+                    return i * 18;
+                })
+                .attr('width', 12)
+                .attr('height', 12)
+                .attr('fill', function(d, i){
+                    return color(i);
+                });
+            
+            legend.selectAll('text')
+                .data(subgroups)
+                .enter()
+                .append('text')
+                .text(function(d){
+                    return d;
+                })
+                .attr('x', 18)
+                .attr('y', function(d, i){
+                    return i * 18;
+                })
+                .attr('text-anchor', 'start')
+                .attr('alignment-baseline', 'hanging');
 
  }
 
