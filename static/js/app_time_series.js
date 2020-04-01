@@ -72,6 +72,14 @@ function removeProperties(obj,arrayKeysRemoved ){
   return result;
 }
 
+function keepProperties(obj, keepList) {
+  for (var prop in obj) {
+      if (keepList.indexOf( prop ) == -1) {
+          delete obj[prop];
+      }             
+  }
+}
+
 /* ---------------------------------------------- */
 /* helper functions End */
 /* ---------------------------------------------- */
@@ -107,11 +115,72 @@ var indexUS = uniqueCountryList.findIndex(x => x ==="US");
 
 const selectedCountry = uniqueCountryList[indexUS];
 getDataTimeSeries(selectedCountry)
+getDataTimeSeriesSumary(selectedCountry)
 
 }).catch(err => console.log(err));  
 }
 
 init();
+
+function getDataTimeSeriesSumary(country){
+
+  var filters = {
+      "Country/Region": country
+    };
+    
+  Promise.all([
+      d3.json('csse_covid_19_time_series/time_series_covid19_confirmed_global.json'),
+      d3.json('csse_covid_19_time_series/time_series_covid19_deaths_global.json'),
+      d3.json('csse_covid_19_time_series/time_series_covid19_recovered_global.json'),
+  ]).then(([confirmed, deaths, recovered]) =>  {
+    //console.log(confirmed)
+    var confirmedData = multiFilter(confirmed,filters);
+    var deathData = multiFilter(deaths,filters);
+    var recoveredData = multiFilter(recovered,filters);
+   
+    // renaming the properties that has '/' to '_', this step can be excluded if the naming convension is followed
+    var newConfirmedObjectArr = confirmedData.map(d => renameProperty(d)).map((d) => removeProperties(d,arrayKeysRemoved )) 
+    var  newDeathObjectArr= deathData.map(d => renameProperty(d)).map((d) => removeProperties(d,arrayKeysRemoved )) 
+    var  newRecoveredObjectArr= recoveredData.map(d => renameProperty(d)).map((d) => removeProperties(d,arrayKeysRemoved )) 
+    //console.log(newConfirmedObjectArr);
+  
+    const arrDates = newConfirmedObjectArr.map(obj => Object.keys(obj))
+   //console.log(arrDates)
+  
+    const arrValuesConfirmed = newConfirmedObjectArr.map(obj => Object.values(obj))
+    const arrValuesDeath = newDeathObjectArr.map(obj => Object.values(obj))
+    const arrValuesRecovered = newRecoveredObjectArr.map(obj => Object.values(obj))
+    //console.log(arrValuesDeath)
+   // console.log(arrValuesConfirmed.map(arr => arr.map(Number))); // calculate sum of multiple arrays
+  
+    var sumArrayConfirmed = arrValuesConfirmed.map(arr => arr.map(Number)).reduce( (a,b) => a.map( (c,i) => c + b[i] ));
+    var sumArrayDeath = arrValuesDeath.map(arr => arr.map(Number)).reduce( (a,b) => a.map( (c,i) => c + b[i] ));
+    var sumArrayRecovered = arrValuesRecovered.map(arr => arr.map(Number)).reduce( (a,b) => a.map( (c,i) => c + b[i] ));
+    
+    // convert key value pair to array of objects,format required for plotting
+    var arrDatesConfirmed= convertArrayObjects(sumArrayConfirmed);
+    var arrDatesDeath = convertArrayObjects(sumArrayDeath);
+    var arrDatesRecovered = convertArrayObjects(sumArrayRecovered);
+      
+    var arrDatesConfirmedDeathCount = creatNewArrOfObjects(arrDates[0],arrDatesConfirmed,arrDatesDeath, arrDatesRecovered);
+      arrDatesConfirmedDeathCount.map((d) => {
+            const arrayKeysKeep = [ 'active', 'death','recovered']
+            return keepProperties(d,arrayKeysKeep)
+          });
+
+      var dataSelector = d3.select('#sumary');
+      dataSelector.html("");
+
+        Object.entries(arrDatesConfirmedDeathCount [arrDatesConfirmedDeathCount.length -1]).forEach(([key,value]) =>{
+            dataSelector.append('p').text(`${key}: ${value}`).append('hr')
+            
+        });
+      
+
+  }).catch(function(err) {
+      console.log(err)
+  })
+  }
 
 function getDataTimeSeries(country){
 
@@ -169,6 +238,7 @@ Promise.all([
 function optionChanged(newCountry) {
   //console.log(newCountry)
   getDataTimeSeries(newCountry);
+  getDataTimeSeriesSumary(newCountry)
     
  }
 
@@ -203,7 +273,7 @@ function barStackedChart(data){
       // List of subgroups = header of the csv files = soil condition here
   var subgroups = Object.keys(data[0]).slice(1)
 
-  console.log(subgroups)
+  //console.log(subgroups)
 
   // List of groups = species here = value of the first column called group -> I show them on the X axis
   var groups = d3.map(data, function(d){return(d.date)}).keys()
@@ -227,6 +297,10 @@ function barStackedChart(data){
     .range([ height, 0 ]);
   svg.append("g")
     .call(d3.axisLeft(y)).attr("class", "axis");
+
+    // ----------------
+    // Create a label
+    // ----------------
 
     svg.append("text")
         .attr("transform", `translate(${width -10 },${height +30 })`)
@@ -305,6 +379,10 @@ function barStackedChart(data){
       .on("mouseout", function(d) {
         tooltip.style("display", "none");
       })
+
+      // ----------------
+      // Create a legend
+      // ----------------
 
       var legend = svg.append('g')
                 .attr('class', 'legend')

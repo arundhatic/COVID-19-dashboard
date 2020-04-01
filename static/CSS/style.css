@@ -8,6 +8,7 @@
 
 .body{
   font-family:  Arial, Helvetica, sans-serif;
+  color: #40291C;
 }
 
 .banner-text h1{
@@ -23,6 +24,7 @@ position: fixed;
 top: 0;
 left: 0;
 text-align: center;
+position: fixed;
 
 }
 
@@ -35,6 +37,7 @@ text-align: center;
 #headerCanvas {
   z-index: -9999;
   display: inline;
+
  
  }
  div.countrySelected{
@@ -51,6 +54,30 @@ text-align: center;
 
 .countrySelected h6{
   color: #40291C;
+}
+
+div.side-panel{
+  margin-top: 10px;
+}
+
+.panel-heading {
+  border-color: #88C1F2;
+  padding: 10px;
+}
+.panel-primary>.panel-heading{
+  margin-top: 20px;
+  font-size: 10px;
+  background-color: #88C1F2;
+  border-color:#e3e3e3; 
+  border-top-right-radius: 4px;
+  border-top-left-radius: 4px;
+}
+
+.panel-body {
+  background-color: #fac934;
+  padding: 20px;
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px;
 }
 
 .axis-text{
@@ -91,7 +118,7 @@ text-align: center;
 
 
 #footer {
-  position: absolute;
+  position: fixed;
   bottom: 0;
   width: 100%; /* Set the fixed height of the footer here */
   height: 10px;
