@@ -175,8 +175,13 @@ function getDataTimeSeriesSumary(country){
             dataSelector.append('p').text(`${key}: ${value}`).append('hr')
             
         });
-      
 
+       const totalCases = Object.values(arrDatesConfirmedDeathCount [arrDatesConfirmedDeathCount.length -1]).reduce((a, b) => a + b) ;
+       console.log(totalCases);
+
+       dataSelector.append('p').text(`total: ${totalCases }`).append('hr')        
+      
+        
   }).catch(function(err) {
       console.log(err)
   })
@@ -383,6 +388,9 @@ function barStackedChart(data){
       // ----------------
       // Create a legend
       // ----------------
+      var colorLegend = d3.scaleOrdinal()
+      .domain(subgroups)
+      .range(['#88C1F2','#40291C','#fac934'])
 
       var legend = svg.append('g')
                 .attr('class', 'legend')
@@ -399,11 +407,11 @@ function barStackedChart(data){
                 .attr('width', 12)
                 .attr('height', 12)
                 .attr('fill', function(d, i){
-                    return color(i);
+                    return colorLegend(i);
                 });
             
             legend.selectAll('text')
-                .data(subgroups)
+                .data(subgroups.reverse())
                 .enter()
                 .append('text')
                 .text(function(d){
