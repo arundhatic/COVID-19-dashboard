@@ -80,6 +80,31 @@ function keepProperties(obj, keepList) {
   }
 }
 
+function sumSimilarKeysArrObjs(arrObjs){
+ return arrObjs.reduce(function(acc, val){
+    var o = acc.filter(function(obj){
+        return obj.Country_Region==val.Country_Region;
+    }).pop() || {Country_Region:val.Country_Region, confirmed_cases:0};
+    
+    o.confirmed_cases += val.confirmed_cases;
+    acc.push(o);
+    return acc;
+},[]);
+}
+
+function removeDuplicates (arr){
+   const seen = new Set();
+
+   const filteredArr = arr.filter(el => {
+    const duplicate = seen.has(el.id);
+    seen.add(el.id);
+    return !duplicate;
+  });
+
+  return filteredArr
+
+}
+
 /* ---------------------------------------------- */
 /* helper functions End */
 /* ---------------------------------------------- */
@@ -247,6 +272,75 @@ function optionChanged(newCountry) {
     
  }
 
+ function geoMapCountries(){
+          Promise.all([
+            d3.csv('csse_covid_19_time_series/time_series_covid19_confirmed_global.csv'),
+            d3.csv('csse_covid_19_time_series/time_series_covid19_deaths_global.csv'),
+            d3.csv('csse_covid_19_time_series/time_series_covid19_recovered_global.csv'),
+        ]).then(([confirmed, deaths, recovered])=>{
+          // console.log(confirmed) 
+           var newConfirmedObjectArr = confirmed.map(d => renameProperty(d))
+           console.log(newConfirmedObjectArr)  
+          
+          var arrObjs = newConfirmedObjectArr.map((item) => {
+            return {
+              Country_Region: item['Country_Region'],
+              'confirmed_cases': +item['3_31_20']
+            } 
+          });
+
+          //console.log(arrObjs)
+          
+        var result = sumSimilarKeysArrObjs(arrObjs).filter((d, index, self) =>
+              index === self.findIndex((t) => (
+                t.Country_Region === d.Country_Region && t.confirmed_cases === d.confirmed_cases
+              ))
+            );
+        //console.log(result)
+          //console.log(result)
+          //console.log(d3.min(result,d=> d.confirmed_cases))
+          //console.log(d3.max(result,d=> d.confirmed_cases))
+
+          const newArrayHeaders = [...Object.keys(result[0])]
+  
+          const arrValues = result.map((obj)=> {
+            return Object.values(obj)
+            })
+           //console.log (arrValues)
+           const dataSet = [[...newArrayHeaders],...arrValues]
+           console.log(dataSet);
+  
+          google.charts.load('current', {
+            'packages':['geochart'],
+            // See: https://developers.google.com/chart/interactive/docs/basic_load_libs#load-settings
+            'mapsApiKey': 'AIzaSyCjNYHzz5ehTehNHZUWbLca7LIy5gHzoiU'
+          });
+          google.charts.setOnLoadCallback(drawRegionsMap);
+    
+          function drawRegionsMap() {
+            var data = google.visualization.arrayToDataTable(dataSet);
+    
+               var options = {
+                  sizeAxis: { minValue: d3.min(result,d=> d.confirmed_cases), maxValue: d3.max(result,d=> d.confirmed_cases) },
+                  displayMode: 'auto', //auto, chart will automatically detect data set whether it is regions or points
+                  keepAspectRatio: true, // code to set max size of chart according to div size html
+                  colorAxis: {minValue: d3.min(result,d=> d.confirmed_cases), maxValue:d3.max(result,d=> d.confirmed_cases), colors: ['#fac934', '#40291C']},
+                };
+    
+            var chart = new google.visualization.GeoChart(document.getElementById('regions_div'));
+    
+            chart.draw(data, options);
+          }
+          
+        }).catch(function(err) {
+          console.log(err)
+        })
+  
+   }
+  
+   geoMapCountries();
+  
+  
 /* ---------------------------------------------- */
 /* data parsing */
 /* ---------------------------------------------- */
