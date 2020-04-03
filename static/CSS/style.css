@@ -11,6 +11,10 @@
   color: #40291C;
 }
 
+.row{
+  margin-bottom: 20px;
+}
+
 .banner-text h1{
 color: #40291C;;
 font-family:  Arial, Helvetica, sans-serif;
@@ -24,6 +28,21 @@ position: absolute;
 top: 0;
 left: 0;
 text-align: center;
+}
+
+.sumary-panel p{
+  font-style: normal;
+  text-align: center;
+  margin-bottom: -2px;
+}
+.sumary-panel h3{
+  font-style: normal;
+  text-align: center;
+}
+
+hr {
+  width:20%;
+  margin:0 auto;
 }
 
 #canvas-container {

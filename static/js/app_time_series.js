@@ -92,6 +92,18 @@ function sumSimilarKeysArrObjs(arrObjs){
 },[]);
 }
 
+function sumSimilarKeysArrObjsDeath(arrObjs){
+  return arrObjs.reduce(function(acc, val){
+     var o = acc.filter(function(obj){
+         return obj.Country_Region==val.Country_Region;
+     }).pop() || {Country_Region:val.Country_Region, death:0};
+     
+     o.death += val.death;
+     acc.push(o);
+     return acc;
+ },[]);
+ }
+
 function removeDuplicates (arr){
    const seen = new Set();
 
@@ -202,7 +214,7 @@ function getDataTimeSeriesSumary(country){
         });
 
        const totalCases = Object.values(arrDatesConfirmedDeathCount [arrDatesConfirmedDeathCount.length -1]).reduce((a, b) => a + b) ;
-       console.log(totalCases);
+       //console.log(totalCases);
 
        dataSelector.append('p').text(`total: ${totalCases }`).append('hr')        
       
@@ -280,16 +292,18 @@ function optionChanged(newCountry) {
         ]).then(([confirmed, deaths, recovered])=>{
           // console.log(confirmed) 
            var newConfirmedObjectArr = confirmed.map(d => renameProperty(d))
-           console.log(newConfirmedObjectArr)  
+           //console.log(newConfirmedObjectArr)  
+           for (var lastProperty in newConfirmedObjectArr[0]);// to always grab the latest date
+           //console.log(lastProperty)
           
           var arrObjs = newConfirmedObjectArr.map((item) => {
             return {
               Country_Region: item['Country_Region'],
-              'confirmed_cases': +item['3_31_20']
+              'confirmed_cases': +item[lastProperty]
             } 
           });
 
-          //console.log(arrObjs)
+         // console.log(arrObjs)
           
         var result = sumSimilarKeysArrObjs(arrObjs).filter((d, index, self) =>
               index === self.findIndex((t) => (
@@ -308,7 +322,7 @@ function optionChanged(newCountry) {
             })
            //console.log (arrValues)
            const dataSet = [[...newArrayHeaders],...arrValues]
-           console.log(dataSet);
+         //  console.log(dataSet);
   
           google.charts.load('current', {
             'packages':['geochart'],
@@ -339,7 +353,73 @@ function optionChanged(newCountry) {
    }
   
    geoMapCountries();
+
+  function totalCases(){
+            Promise.all([
+              d3.csv('csse_covid_19_time_series/time_series_covid19_confirmed_global.csv'),
+              d3.csv('csse_covid_19_time_series/time_series_covid19_deaths_global.csv'),
+              d3.csv('csse_covid_19_time_series/time_series_covid19_recovered_global.csv'),
+          ]).then(([confirmed, deaths, recovered])=>{
+               //console.log(confirmed) 
+               var newConfirmedObjectArr = confirmed.map(d => renameProperty(d))
+               var newDeathObjectArr = deaths.map(d => renameProperty(d))
+               for (var lastProperty in newConfirmedObjectArr[0]);// to always grab the latest date
+               console.log(lastProperty)
+              
+              var arrObjs = newConfirmedObjectArr.map((item) => {
+                return {
+                  Country_Region: item['Country_Region'],
+                  'confirmed_cases': +item[lastProperty]
+                } 
+              });
+    
+              var arrObjsDeath = newDeathObjectArr.map((item) => {
+                      return {
+                            Country_Region: item['Country_Region'],
+                            'death': +item[lastProperty]
+                      } 
+                 });
+      
+            
+          var resultConfirmed = sumSimilarKeysArrObjs(arrObjs).filter((d, index, self) =>
+                index === self.findIndex((t) => (
+                  t.Country_Region === d.Country_Region && t.confirmed_cases === d.confirmed_cases
+                ))
+              );
+
+           // console.log(resultConfirmed)
+
+          var resultDeath = sumSimilarKeysArrObjsDeath(arrObjsDeath).filter((d, index, self) =>
+                index === self.findIndex((t) => (
+                  t.Country_Region === d.Country_Region && t.death === d.death
+                ))
+              );
+              console.log(resultDeath.reduce((a, b) => +a + +b.death, 0))
+              console.log(resultConfirmed.reduce((a,b) => a + b.confirmed_cases,0))
+
+              var dataSelector = d3.select('#sumary-top');
+              dataSelector.html("") ;
+              var locale = d3.formatLocale({
+                decimal: ",",
+                thousands: ", ",
+                grouping: [3]
+              });
+
+              var format = locale.format(",");
+              
+               dataSelector.append('p').text(`Total Cases:`).append('br');
+               dataSelector.append('h3').text(`${format(resultConfirmed.reduce((a,b) => a + b.confirmed_cases,0)) }`).append('hr') 
+               dataSelector.append('p').text(`Deaths:`).append('br');
+               dataSelector.append('h3').text(`${format(resultDeath.reduce((a, b) => +a + +b.death, 0)) }`).append('hr')   
+            
+            
+          }).catch(function(err) {
+            console.log(err)
+          })
+    
+     }
   
+  totalCases();
   
 /* ---------------------------------------------- */
 /* data parsing */
