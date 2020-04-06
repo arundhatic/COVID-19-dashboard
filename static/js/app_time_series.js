@@ -218,14 +218,14 @@ function getDataTimeSeriesSumary(country){
       var format = locale.format(",");
 
         Object.entries(arrDatesConfirmedDeathCount [arrDatesConfirmedDeathCount.length -1]).forEach(([key,value]) =>{
-            dataSelector.append('p').text(`${key}: ${format(value)}`).append('hr')
+            dataSelector.append('p').text(`${key}:`).append('p').text(`${format(value)}`).append('hr')
             
         });
 
        const totalCases = Object.values(arrDatesConfirmedDeathCount [arrDatesConfirmedDeathCount.length -1]).reduce((a, b) => a + b) ;
        //console.log(totalCases);
 
-       dataSelector.append('p').text(`total: ${format(totalCases) }`).append('hr')        
+       dataSelector.append('p').text(`total:`).append('p').text(`${format(totalCases) }`).append('hr')        
       
         
   }).catch(function(err) {
@@ -331,7 +331,7 @@ function optionChanged(newCountry) {
             })
            //console.log (arrValues)
            const dataSet = [[...newArrayHeaders],...arrValues]
-         //  console.log(dataSet);
+          //console.log(dataSet);
   
           google.charts.load('current', {
             'packages':['geochart'],
@@ -345,7 +345,7 @@ function optionChanged(newCountry) {
     
                var options = {
                   sizeAxis: { minValue: d3.min(result,d=> d.confirmed_cases), maxValue: d3.max(result,d=> d.confirmed_cases) },
-                  displayMode: 'auto', //auto, chart will automatically detect data set whether it is regions or points
+                  displayMode: 'auto',   //auto, chart will automatically detect data set whether it is regions or points
                   keepAspectRatio: true, // code to set max size of chart according to div size html
                   colorAxis: {minValue: d3.min(result,d=> d.confirmed_cases), maxValue:d3.max(result,d=> d.confirmed_cases), colors: ['#fac934', '#40291C']},
                 };
@@ -373,7 +373,7 @@ function optionChanged(newCountry) {
                var newConfirmedObjectArr = confirmed.map(d => renameProperty(d))
                var newDeathObjectArr = deaths.map(d => renameProperty(d))
                for (var lastProperty in newConfirmedObjectArr[0]);// to always grab the latest date
-               console.log(lastProperty)
+              // console.log(lastProperty)
               
               var arrObjs = newConfirmedObjectArr.map((item) => {
                 return {
@@ -403,8 +403,8 @@ function optionChanged(newCountry) {
                   t.Country_Region === d.Country_Region && t.death === d.death
                 ))
               );
-              console.log(resultDeath.reduce((a, b) => +a + +b.death, 0))
-              console.log(resultConfirmed.reduce((a,b) => a + b.confirmed_cases,0))
+              //console.log(resultDeath.reduce((a, b) => +a + +b.death, 0))
+              //console.log(resultConfirmed.reduce((a,b) => a + b.confirmed_cases,0))
 
               var dataSelector = d3.select('#sumary-top');
               dataSelector.html("") ;
@@ -416,9 +416,9 @@ function optionChanged(newCountry) {
 
               var format = locale.format(",");
               
-               dataSelector.append('p').text(`Total Cases:`).append('br');
+               dataSelector.append('p').text(`Total Worldwide Cases:`).append('br');
                dataSelector.append('h3').text(`${format(resultConfirmed.reduce((a,b) => a + b.confirmed_cases,0)) }`).append('hr') 
-               dataSelector.append('p').text(`Deaths:`).append('br');
+               dataSelector.append('p').text(`Deaths Worldwide:`).append('br');
                dataSelector.append('h3').text(`${format(resultDeath.reduce((a, b) => +a + +b.death, 0)) }`).append('hr')   
             
             
@@ -558,7 +558,7 @@ function barStackedChart(data){
          var subgroupValue = d.data[subgroupName];
          //console.log(subgroupValue);
          tooltip.style("display", "block")
-             .html(subgroupName + " cases "+ "<br>" + "count: " + subgroupValue)
+             .html(subgroupName + "<br>" + subgroupValue)
              .style("opacity", 1)
              .style("left", d3.select(this).attr("x")+ "px")
              .style("top", d3.select(this).attr("y") + "px");

@@ -26,7 +26,9 @@
     -->
 
      <!-- style -->
-  <link rel="stylesheet" href="./static/CSS/style.css">
+     <link rel="stylesheet" type="text/css" href="https://unpkg.com/dc@4/dist/style/dc.css"/>
+     <link rel="stylesheet" href="./static/CSS/style.css">
+   
 </head>
 
 <body>
@@ -79,6 +81,15 @@
       </div>
   </div>
 
+<div class="row geoMapCountries">
+    <div class="col-md-12 ">
+      <h3 class="geomap-title">Top 20 States affected by Coronavirus in the United States</h3>
+       <canvas id="stackedBarChart"></canvas>
+       <p id="caption"></p>
+    </div>
+  </div>
+  
+
     <!-- body -->
   </div>
     <!-- Footer-->
@@ -87,10 +98,11 @@
   </div>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js"></script>
    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/Chart.js/2.2.2/Chart.min.js"></script>
   <script src="./static/js/app_time_series.js"></script>
-   <script src="./static/js/app_nyt_us.js"></script>
+   <script src="./static/js/app_time_series_us.js"></script>
   <script src="./static/js/header_animation.js"></script>
 </body>
 
