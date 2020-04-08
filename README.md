@@ -23,6 +23,9 @@ Interactive Data Visualization with various js visualization libraries, Python, 
  * Flask to build the server, for routing
  * utility files in python to grab csv and convert to json before pushing it to database
 
+### Dependencies:
+ * MongoDB, PyMongo, Flask
+
  ### instructions to run the app:
 
  * cd Project_2_covid-19-pymongo-flask-app
