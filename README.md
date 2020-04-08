@@ -23,6 +23,13 @@ Interactive Data Visualization with various js visualization libraries, Python, 
  * Flask to build the server, for routing
  * utility files in python to grab csv and convert to json before pushing it to database
 
+ ### instructions to run the app:
+
+ * cd Project_2_covid-19-pymongo-flask-app
+ * run: app_pymongo_counties_states_US.ipynb and app_pymongo_time_series.ipynb which pushes teh data to cretaed database
+ * python app.py -> to run server using flask connecting to the Frontend Visualization
+ * put your own mapbox api key in config.js to view the leaflet geomap
+
 ## screen shots 
  ![](screenshots/screen_shot1.png)
  ![](screenshots/screen_shot2.png)
@@ -30,5 +37,5 @@ Interactive Data Visualization with various js visualization libraries, Python, 
  ![](screenshots/screen_shot4.png)
  ![](screenshots/screen_shot5.png)
 
- ## link:
+ ## link to view the static version of the site:
  https://arundhatic.github.io/COVID-19-dashboard/
