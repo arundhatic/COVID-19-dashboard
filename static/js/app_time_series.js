@@ -508,17 +508,23 @@ function optionChanged(newCountry) {
       //console.log(arrDatesConfirmed)
 
       var arrDatesConfirmedDeathChange = creatNewArrOfObjectsChange(arrDates[0],arrDatesConfirmed,arrDatesDeath);
-      //console.log(arrDatesConfirmedDeathChange)
+     // console.log(arrDatesConfirmedDeathChange)
 
       let lenthArr = arrDatesConfirmedDeathChange.length
 
-var original = Chart.defaults.global.legend.onClick;
-Chart.defaults.global.legend.onClick = function(e, legendItem) {
-  update_caption(legendItem);
-  original.call(this, e, legendItem);
-};
+     let chartStacked = document.getElementById("bar-chart-grouped").getContext('2d');
+
+      var original = Chart.defaults.global.legend.onClick;
+      Chart.defaults.global.legend.onClick = function(e, legendItem) {
+        update_caption(legendItem);
+        original.call(this, e, legendItem);
+      };
+
+      if(window.chart && window.chart !== null){
+        window.chart.destroy();
+    }
       
-        new Chart(document.getElementById("bar-chart-grouped"), {
+      window.chart =   new Chart(chartStacked, {
           type: 'bar',
           data: {
             labels: arrDatesConfirmedDeathChange.map(d => d.date).slice((lenthArr - 20), lenthArr),
@@ -548,7 +554,7 @@ Chart.defaults.global.legend.onClick = function(e, legendItem) {
           "Deaths": true
         };
 
-        var caption = document.getElementById("captionChange");
+var caption = document.getElementById("captionChange");
 
 var update_caption = function(legend) {
   labels[legend.text] = legend.hidden;
@@ -557,10 +563,10 @@ var update_caption = function(legend) {
     return labels[key];
   });
 
-  var text = selected.length ? selected.join(" & ") : "nothing";
-  caption.innerHTML;
+    var text = selected.length ? selected.join(" & ") : "nothing";
+    caption.innerHTML;
 
-};
+  };
    
     }).catch(function(err) {
         console.log(err)

@@ -397,7 +397,7 @@ function optionChanged(newCountry) {
                var newConfirmedObjectArr = confirmed.map(d => renameProperty(d))
                var newDeathObjectArr = deaths.map(d => renameProperty(d))
                for (var lastProperty in newConfirmedObjectArr[0]);// to always grab the latest date
-               console.log(lastProperty)
+               //console.log(lastProperty)
               
               var arrObjs = newConfirmedObjectArr.map((item) => {
                 return {
@@ -427,8 +427,8 @@ function optionChanged(newCountry) {
                   t.Country_Region === d.Country_Region && t.death === d.death
                 ))
               );
-              console.log(resultDeath.reduce((a, b) => +a + +b.death, 0))
-              console.log(resultConfirmed.reduce((a,b) => a + b.confirmed_cases,0))
+           //   console.log(resultDeath.reduce((a, b) => +a + +b.death, 0))
+           //   console.log(resultConfirmed.reduce((a,b) => a + b.confirmed_cases,0))
 
               var dataSelector = d3.select('#sumary-top');
               dataSelector.html("") ;
@@ -507,6 +507,7 @@ function optionChanged(newCountry) {
         //console.log(arrDatesConfirmed)
   
         let arrDatesConfirmedDeathChange = creatNewArrOfObjectsChange(arrDates[0],arrDatesConfirmed,arrDatesDeath);
+        
         let lenthArr = arrDatesConfirmedDeathChange.length
         
           var original = Chart.defaults.global.legend.onClick;

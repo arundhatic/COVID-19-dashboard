@@ -128,7 +128,7 @@ var stackedBarChart = new Chart(ctx, {
       label: "Deaths",
       backgroundColor: "#8C4A32",
       hoverBackgroundColor: "#8C4A32",
-      data: resultDeath.map(d => d.death).sort((a,b)=> b - a).slice(0,20)
+      data: resultDeath.map(d => d.death).sort((a,b)=> b - a).slice(0,10)
     }]
   },
   
@@ -160,6 +160,70 @@ var update_caption = function(legend) {
 }
  
 getDataUS();
+
+var filterCounty = {
+    "county": "San Diego"
+  };
+  
+    
+function getDataSanDiego(){
+  
+    Promise.all([
+       d3.json("nyt_covid-19_us/us-counties.json"),
+       d3.json("nyt_covid-19_us/us-states.json"),
+       
+    ]).then(([counties,states]) =>  {
+  
+  //   console.log(counties)
+    var sanDiegoData = multiFilter(counties,filterCounty);
+  //  console.log(sanDiegoData)
+
+var arrObjs = sanDiegoData.map((item) => {
+            return {
+              'date': item['date'],
+              'confirmed_cases': +item['cases'],
+              'deaths': +item['deaths']
+            } 
+          });
+
+  //console.log(arrObjs)
+
+  const newArrayHeaders = [...Object.keys(arrObjs[0])]
+
+  const arrValues = arrObjs.map((obj)=> {
+              return Object.values(obj)
+              })
+    
+   const dataSet = [[...newArrayHeaders],...arrValues.slice((arrValues.length - 20), arrValues.length)]
+  // console.log(dataSet)
+
+   google.charts.load('current', {'packages':['bar']});
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+        var data = google.visualization.arrayToDataTable(dataSet);
+
+        var options = {
+          title: 'COVID-19 cases in San Diego',
+          hAxis: {title: 'Year', titleTextStyle: {color: 'red'}},
+          colors: [,'#fac934','#8C4A32'],
+          chart: {
+            title: 'COVID-19 cases are in San Diego',
+            subtitle: '',
+          },
+          bars: 'horizontal' // Required for Material Bar Charts. // series: [ {}, {color: 'lightgray'} ]
+        };
+        var chart = new google.charts.Bar(document.getElementById('barchart_material'));
+
+        chart.draw(data, google.charts.Bar.convertOptions(options));
+      }
+
+    }).catch(function(err) {
+      console.log(err)
+    })
+    }
+
+  getDataSanDiego();
 
   
 

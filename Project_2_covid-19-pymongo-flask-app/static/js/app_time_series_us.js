@@ -161,5 +161,69 @@ var update_caption = function(legend) {
  
 getDataUS();
 
+var filterCounty = {
+    "county": 'San Diego'
+  };
   
+    
+function getDataSanDiego(){
+  
+    Promise.all([
+       d3.json("/counties_db/counties_data"),
+       d3.json("/states_db/states_data"),
+       
+    ]).then(([counties,states]) =>  {
+  
+       
+      var sanDiegoData = multiFilter(counties,filterCounty);
+      console.log(sanDiegoData)
 
+ 
+    new Chart(document.getElementById("stackedBarChartSandiego"), {
+            type: 'bar',
+            data: {
+              labels: sanDiegoData.map(d => d.date),
+              datasets: [
+                {
+                  label: "cases",
+                    type: "bar",
+                  stack: "Base",
+                  backgroundColor: "#3e95cd",
+                  data: sanDiegoData.map(d => +d.cases)
+                }, {
+                  label: "deaths",
+                    type: "bar",
+                  stack: "Base",
+                  backgroundColor: "#8e5ea2",
+                  data: sanDiegoData.map(d => +d.deaths)
+                }
+              ]
+            },
+            options: {
+        scales: {
+          xAxes: [{
+            //stacked: true,
+            stacked: true,
+            ticks: {
+              beginAtZero: true,
+              maxRotation: 0,
+              minRotation: 0
+            }
+          }],
+          yAxes: [{
+            stacked: true,
+          }]
+        },
+      }
+    });
+ 
+     
+
+        
+  
+    }).catch(function(err) {
+      console.log(err)
+    })
+    }
+
+  getDataSanDiego();
