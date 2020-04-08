@@ -22,3 +22,6 @@ Interactive Data Visualization with various js visualization libraries, Python, 
  * pymongo to interacting with MongoDB (Notebook)
  * Flask to build the server, for routing
  * utility files in python to grab csv and convert to json before pushing it to database
+
+ ## link:
+ https://arundhatic.github.io/COVID-19-dashboard/
