@@ -28,7 +28,6 @@ Interactive Data Visualization with various js visualization libraries, Python, 
  * cd Project_2_covid-19-pymongo-flask-app
  * run: app_pymongo_counties_states_US.ipynb and app_pymongo_time_series.ipynb which pushes teh data to cretaed database
  * python app.py -> to run server using flask connecting to the Frontend Visualization
- * put your own mapbox api key in config.js to view the leaflet geomap
 
 ## screen shots 
  ![](screenshots/screen_shot1.png)
