@@ -23,5 +23,12 @@ Interactive Data Visualization with various js visualization libraries, Python, 
  * Flask to build the server, for routing
  * utility files in python to grab csv and convert to json before pushing it to database
 
+## screen shots 
+ ![](screenshots/screen_shot1.png)
+ ![](screenshots/screen_shot2.png)
+ ![](screenshots/screen_shot3.png)
+ ![](screenshots/screen_shot4.png)
+ ![](screenshots/screen_shot5.png)
+
  ## link:
  https://arundhatic.github.io/COVID-19-dashboard/
