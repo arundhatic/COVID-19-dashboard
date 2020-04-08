@@ -16,7 +16,7 @@
 }
 
 .banner-text h1{
-color: #40291C;;
+color: #40291C;
 font-family:  Arial, Helvetica, sans-serif;
 font-size: 53px;
 letter-spacing: 10px;
@@ -147,6 +147,10 @@ div.side-panel{
   font-style: bold;
 }
 
+div#barchart_material{
+  padding-left: 100px;
+  padding-bottom: 20px;
+}
 
 #footer {
   position: fixed;

@@ -160,13 +160,13 @@ var update_caption = function(legend) {
 }
  
 getDataUS();
-
-var filterCounty = {
-    "county": 'San Diego'
-  };
   
     
 function getDataSanDiego(){
+
+  const filterCounty = {
+      "county": "San Diego"
+    };
   
     Promise.all([
        d3.json("/counties_db/counties_data"),
@@ -174,52 +174,49 @@ function getDataSanDiego(){
        
     ]).then(([counties,states]) =>  {
   
-       
-      var sanDiegoData = multiFilter(counties,filterCounty);
-      console.log(sanDiegoData)
+    console.log(counties)
+    var sanDiegoData = multiFilter(counties,filterCounty);
+    console.log(sanDiegoData)
 
- 
-    new Chart(document.getElementById("stackedBarChartSandiego"), {
-            type: 'bar',
-            data: {
-              labels: sanDiegoData.map(d => d.date),
-              datasets: [
-                {
-                  label: "cases",
-                    type: "bar",
-                  stack: "Base",
-                  backgroundColor: "#3e95cd",
-                  data: sanDiegoData.map(d => +d.cases)
-                }, {
-                  label: "deaths",
-                    type: "bar",
-                  stack: "Base",
-                  backgroundColor: "#8e5ea2",
-                  data: sanDiegoData.map(d => +d.deaths)
-                }
-              ]
-            },
-            options: {
-        scales: {
-          xAxes: [{
-            //stacked: true,
-            stacked: true,
-            ticks: {
-              beginAtZero: true,
-              maxRotation: 0,
-              minRotation: 0
-            }
-          }],
-          yAxes: [{
-            stacked: true,
-          }]
-        },
-      }
-    });
- 
-     
-
+    var arrObjs = sanDiegoData.map((item) => {
+                return {
+                  'date': item['date'],
+                  'confirmed_cases': +item['cases'],
+                  'deaths': +item['deaths']
+                } 
+              });
+    
+      console.log(arrObjs)
+    
+      const newArrayHeaders = [...Object.keys(arrObjs[0])]
+    
+      const arrValues = arrObjs.map((obj)=> {
+                  return Object.values(obj)
+                  })
         
+       const dataSet = [[...newArrayHeaders],...arrValues.slice((arrValues.length - 20), arrValues.length)]
+      // console.log(dataSet)
+    
+       google.charts.load('current', {'packages':['bar']});
+          google.charts.setOnLoadCallback(drawChart);
+    
+          function drawChart() {
+            var data = google.visualization.arrayToDataTable(dataSet);
+    
+            var options = {
+              title: 'COVID-19 cases in San Diego',
+              hAxis: {title: 'Year', titleTextStyle: {color: 'red'}},
+              colors: [,'#fac934','#8C4A32'],
+              chart: {
+                title: 'COVID-19 cases are in San Diego',
+                subtitle: '',
+              },
+              bars: 'horizontal' // Required for Material Bar Charts. // series: [ {}, {color: 'lightgray'} ]
+            };
+            var chart = new google.charts.Bar(document.getElementById('barchart_material'));
+    
+            chart.draw(data, google.charts.Bar.convertOptions(options));
+          }
   
     }).catch(function(err) {
       console.log(err)

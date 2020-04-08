@@ -53,6 +53,7 @@ function convertArrayObjects(obj){
 
 const multiFilter = (arr, filters) => {
   const filterKeys = Object.keys(filters);
+  console.log(filters)
   return arr.filter(eachObj => {
     return filterKeys.every(eachKey => {
       if (!filters[eachKey].length) {
