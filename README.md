@@ -23,15 +23,15 @@ Interactive Data Visualization with various js visualization libraries, Python, 
  * Flask to build the server, for routing
  * utility files in python to grab csv and convert to json before pushing it to database
 
-### Dependencies:
+ ## Dependencies/Installations:
  * MongoDB, PyMongo, Flask
 
  ### instructions to run the app:
 
  * cd Project_2_covid-19-pymongo-flask-app
- * run: app_pymongo_counties_states_US.ipynb and app_pymongo_time_series.ipynb which pushes teh data to cretaed database
+ * run: app_pymongo_counties_states_US.ipynb and app_pymongo_time_series.ipynb which pushes the data to database
  * python app.py -> to run server using flask connecting to the Frontend Visualization
-
+ 
 ## screen shots 
  ![](screenshots/screen_shot1.png)
  ![](screenshots/screen_shot2.png)
