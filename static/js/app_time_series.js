@@ -508,7 +508,7 @@ function optionChanged(newCountry) {
       //console.log(arrDatesConfirmed)
 
       var arrDatesConfirmedDeathChange = creatNewArrOfObjectsChange(arrDates[0],arrDatesConfirmed,arrDatesDeath);
-      console.log(arrDatesConfirmedDeathChange)
+      //console.log(arrDatesConfirmedDeathChange)
 
       let lenthArr = arrDatesConfirmedDeathChange.length
 
