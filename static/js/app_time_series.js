@@ -67,6 +67,8 @@ function creatNewArrOfObjectsChange(arrDate, arrObjConfirmed, arrObjDeath){
 
 
 const multiFilter = (arr, filters) => {
+  //console.log(filters)
+  //console.log(arr)
   const filterKeys = Object.keys(filters);
   return arr.filter(eachObj => {
     return filterKeys.every(eachKey => {

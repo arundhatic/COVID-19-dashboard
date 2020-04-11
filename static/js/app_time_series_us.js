@@ -64,10 +64,11 @@ function getDataUS(){
   Promise.all([
      d3.json('csse_covid_19_time_series/time_series_covid19_confirmed_US.json'),
      d3.json('csse_covid_19_time_series/time_series_covid19_deaths_US.json'),
-     
-  ]).then(([confirmed,deaths]) =>  {
- // console.log(confirmed);
+     d3.json('population_data/data.json')
+  ]).then(([confirmed, deaths, population]) =>  {
+  //console.log(confirmed);
   //console.log(deaths);
+ console.log(population)
   for (var lastProperty in confirmed[0]);
  // console.log(lastProperty)
 
@@ -85,7 +86,7 @@ function getDataUS(){
            } 
       });
 
-//   console.log( arrObjsConfirmed)
+//  console.log( arrObjsConfirmed)
 
 var resultConfirmed = sumSimilarKeysArrStateObjs(arrObjsConfirmed).filter((d, index, self) =>
 index === self.findIndex((t) => (
@@ -95,15 +96,48 @@ index === self.findIndex((t) => (
 
 //console.log(resultConfirmed)
 
+
 var resultDeath = sumSimilarKeysArrObjsStateDeath(arrObjsDeath).filter((d, index, self) =>
 index === self.findIndex((t) => (
   t.Province_State === d.Province_State && t.death === d.death
 ))
 );
 
-//console.log(resultDeath.map(d => d.death).sort((a,b)=> b - a).slice(0,15))
-
 var casesUS = creatNewArrOfObjectsStates(resultConfirmed,resultDeath)
+
+for (let i = 0; i < casesUS.length; i ++){
+ // console.log(casesUS[i].Province_State.toString())
+  let filterPopulation = {
+      'State': casesUS[i]['Province_State']
+    };
+    let populationState = multiFilter(population.data, filterPopulation);
+    //console.log(populationState[0] )
+
+    if(populationState && populationState[0] && populationState[0].Pop){
+      if(casesUS[i]['Province_State'] === 'West Virginia'){
+        casesUS[i]['population'] = populationState[1]['Pop'];// 1st one is virgia in the search
+       } else{
+        casesUS[i]['population'] = populationState[0]['Pop'];
+       }
+
+    }
+
+  if (casesUS[i]['population']){
+    let popRatio = Math.abs(casesUS[i]['population']/1000000)
+    casesUS[i]['per_million_cases_excluding_deaths'] = (casesUS[i]['confirmed_cases_excluding_death']/popRatio).toFixed(2);
+    casesUS[i]['per_million_deaths'] = (casesUS[i]['death']/popRatio).toFixed(2);
+  }
+}
+
+casesUS = casesUS.filter(d => d.per_million_cases_excluding_deaths );// get the data that is non NaN
+
+ casesUS.forEach(b => {
+   b.per_million_cases_excluding_deaths = +b.per_million_cases_excluding_deaths
+   b.per_million_deaths = +b.per_million_deaths
+
+})// convert to a number
+
+console.log(casesUS)
 
 var ctx = document.getElementById("stackedBarChart").getContext('2d');
 
@@ -116,27 +150,25 @@ Chart.defaults.global.legend.onClick = function(e, legendItem) {
 var stackedBarChart = new Chart(ctx, {
   type: 'bar',
   data: {
-    labels: casesUS.sort(function(a, b) {
-      return b.confirmed_cases_excluding_death - a.confirmed_cases_excluding_death;
-  }).map(b => b.Province_State).slice(0,20),
+    labels: casesUS.sort((a,b)=> b.per_million_cases_excluding_deaths - a.per_million_cases_excluding_deaths).map(b => b.Province_State).slice(0,30),
     datasets: [{
-      label: "Confirmed Cases Excluding Deaths",
+      label: "Per Mil Confirmed Cases Excluding Deaths",
       backgroundColor: "#88C1F2",
       hoverBackgroundColor: "#88C1F2",
-      data: casesUS.map(d => d.confirmed_cases_excluding_death).sort((a,b)=> b - a).slice(0,20),
+      data: casesUS.sort((a,b)=> b.per_million_cases_excluding_deaths - a.per_million_cases_excluding_deaths).map(b => b.per_million_cases_excluding_deaths).slice(0,30),
     }, {
-      label: "Deaths",
+      label: "Per Mil Deaths",
       backgroundColor: "#8C4A32",
       hoverBackgroundColor: "#8C4A32",
-      data: resultDeath.map(d => d.death).sort((a,b)=> b - a).slice(0,10)
+      data: casesUS.sort((a,b)=> b.per_million_deaths - a.per_million_deaths).map(b => b.per_million_deaths).slice(0,30)
     }]
   },
   
 });
 
 var labels = {
-  "Confirmed Cases Excluding Deaths": true,
-  "Deaths": true
+  "Per Mil Confirmed Cases Excluding Deaths": true,
+  "Per Mil Deaths": true
 };
 
 var caption = document.getElementById("caption");
@@ -205,7 +237,7 @@ var arrObjs = sanDiegoData.map((item) => {
 
         var options = {
           title: 'COVID-19 cases in San Diego',
-          hAxis: {title: 'Year', titleTextStyle: {color: 'red'}},
+          hAxis: {title: 'Year', titleTextStyle: {color: '#40291C'}},
           colors: [,'#fac934','#8C4A32'],
           chart: {
             title: 'COVID-19 cases are in San Diego',
