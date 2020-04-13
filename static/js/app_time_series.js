@@ -67,8 +67,6 @@ function creatNewArrOfObjectsChange(arrDate, arrObjConfirmed, arrObjDeath){
 
 
 const multiFilter = (arr, filters) => {
-  //console.log(filters)
-  //console.log(arr)
   const filterKeys = Object.keys(filters);
   return arr.filter(eachObj => {
     return filterKeys.every(eachKey => {
@@ -108,6 +106,14 @@ function sumSimilarKeysArrObjs(arrObjs){
     return acc;
 },[]);
 }
+
+function similarKeysArrObjsLookUp(arrObjs){
+ return arrObjs.filter((obj, index, self) =>
+  index === self.findIndex((t) => (
+    t.Country_Region === obj.Country_Region 
+  ))
+   )
+ }
 
 function sumSimilarKeysArrObjsDeath(arrObjs){
   return arrObjs.reduce(function(acc, val){
@@ -320,7 +326,8 @@ function optionChanged(newCountry) {
   getDataTimeSeriesChange(newCountry)
     
  }
-
+// by total confirmed cases
+/*
  function geoMapCountries(){
           Promise.all([
             d3.json('csse_covid_19_time_series/time_series_covid19_confirmed_global.json'),
@@ -388,8 +395,8 @@ function optionChanged(newCountry) {
         })
   
    }
-  
-   geoMapCountries();
+*/ 
+ //  geoMapCountries();
 
   function totalCases(){
             Promise.all([
@@ -510,7 +517,7 @@ function optionChanged(newCountry) {
       //console.log(arrDatesConfirmed)
 
       var arrDatesConfirmedDeathChange = creatNewArrOfObjectsChange(arrDates[0],arrDatesConfirmed,arrDatesDeath);
-     // console.log(arrDatesConfirmedDeathChange)
+      //console.log(arrDatesConfirmedDeathChange)
 
       let lenthArr = arrDatesConfirmedDeathChange.length
 
@@ -576,23 +583,165 @@ var update_caption = function(legend) {
     }
  /* increase in cases */ 
 
- // population, restful get api
- axios.get('https://restcountries.eu/rest/v2/alpha/us')
- .then(response => {
-   console.log(response.data);
- }).catch(error => console.log(error));
+//geoMap total cases per mil population, issue being can't extract population using country code through restful api
+// and the names don't match exactly with JH time series, have to do lot of hacking to match
+ function geoMapCountriesByPerMil(){
+          Promise.all([
+            d3.json('csse_covid_19_time_series/time_series_covid19_confirmed_global.json'),
+            d3.json('lookup_tables/UID_ISO_FIPS_LookUp_Table.json'),
+        ]).then(([confirmed, lookUpTable])=>{
+          // console.log(confirmed) 
+          //console.log(lookUpTable) 
+           // get population using axios 
+          //https://restcountries.eu/rest/v2/alpha/us
+          axios.get('https://restcountries.eu/rest/v2/all')
+          .then(response => {
+           // console.log(response.data);
+            var populationCountries  = response.data;
+           // console.log(populationCountries);
 
-function getPopulation(){
-  
- Promise.all([
-   d3.json('lookup_tables/UID_ISO_FIPS_LookUp_Table.json'),
-   d3.json('csse_covid_19_time_series/time_series_covid19_confirmed_global.json'),   
-]).then(([lookup,confirmed])=>{
-  console.log(lookup);
-}).catch(error => console.log(error));
-}
+            var newConfirmedObjectArr = confirmed.map(d => renameProperty(d))
+                     //console.log(newConfirmedObjectArr)  
+                    for (var lastProperty in newConfirmedObjectArr[0]);// to always grab the latest date
+                     //console.log(lastProperty)
+                    
+                    var arrObjs = newConfirmedObjectArr.map((item) => {
+                      return {
+                        Country_Region: item['Country_Region'],
+                        'confirmed_cases': +item[lastProperty]
+                      } 
+                    });
+          
+                //  console.log(arrObjs) 
+                 
+                 var arrLookUpObjs = lookUpTable.map((item) => {
+                            return {
+                              Country_Region: item['Country_Region'],
+                              'iso2': item['iso2'],
+                              'iso3': item['iso3']
+                            } 
+                          });
 
+                 //  console.log(arrLookUpObjs) 
+                
+                    
+                  var result = sumSimilarKeysArrObjs(arrObjs).filter((d, index, self) =>
+                        index === self.findIndex((t) => (
+                          t.Country_Region === d.Country_Region && t.confirmed_cases === d.confirmed_cases
+                        ))
+                      );
+
+                    //  console.log(result)
+                    
+
+                    var resultLookUp = similarKeysArrObjsLookUp(arrLookUpObjs);
+                   // console.log(resultLookUp) 
+
+                   // join two array of objects based on a key value, join confirmed cases array with lookup table based on Country_Region
+                   let merged = [];
+
+                  for(let i=0; i<result.length; i++) {
+                    merged.push({
+                    ...result[i], 
+                    ...(resultLookUp.find((itmInner) => itmInner.Country_Region === result[i].Country_Region))}
+                    );
+                  }
+
+                    console.log(merged)
+
+                    let merged2 = [];
+
+                    for(let i=0; i<merged.length; i++) {
+                      merged2.push({
+                      ...merged[i], 
+                      ...(populationCountries.find((itmInner) => itmInner.alpha2Code === merged[i].iso2))}
+                      );
+                    }
+ 
+                    console.log(merged2)
+
+
+                    var arrObjsMerged2 = merged2.map((item) => {
+
+                      if (+item['confirmed_cases'] === 0  ){
+
+                        return {
+                                      Country_Region: item['Country_Region'],
+                                    //  'confirmed_cases': +item['confirmed_cases'],
+                                    //  'population': +item['population'],
+                                      'confirmed_cases_per_mil': 0
+                                     } 
+
+                      } else {
+
+                      }
+                      
+                      let popRatio = Math.abs(+item['population']/1000000).toFixed(0)
+                        let confirmed_cases_per_mil = (+item['confirmed_cases']/popRatio).toFixed(2)
+                       // console.log(item['Country_Region'], +item['population'], item['confirmed_cases'],popRatio, confirmed_cases_per_mil)
+                        return {
+                                Country_Region: item['Country_Region'],
+                              //  'confirmed_cases': +item['confirmed_cases'],
+                              //  'population': +item['population'],
+                                'confirmed_cases_per_mil': confirmed_cases_per_mil
+                               } 
+   
+                                
+                    });
+
+                   // console.log(arrObjsMerged2)
+
+                    var filterInfinity = arrObjsMerged2.filter(d => d.confirmed_cases_per_mil !== 'Infinity').filter(d => d.confirmed_cases_per_mil !== 'NaN').map (d => {
+                      return {
+                        'Country_Region' : d.Country_Region,
+                        'confirmed_cases_per_mil': +d.confirmed_cases_per_mil
+                      }
+
+                    })
+
+                    console.log(filterInfinity)
+
+                    const newArrayHeaders = [...Object.keys(filterInfinity[0])]
+            
+                    const arrValues = filterInfinity.map((obj)=> {
+                      return Object.values(obj)
+                      })
+                     //console.log (arrValues)
+                     const dataSet = [[...newArrayHeaders],...arrValues]
+                     console.log(dataSet);
+                    
+                    google.charts.load('current', {
+                      'packages':['geochart'],
+                      // See: https://developers.google.com/chart/interactive/docs/basic_load_libs#load-settings
+                      'mapsApiKey': 'AIzaSyCjNYHzz5ehTehNHZUWbLca7LIy5gHzoiU'
+                    });
+                    google.charts.setOnLoadCallback(drawRegionsMap);
+              
+                    function drawRegionsMap() {
+                      var data = google.visualization.arrayToDataTable(dataSet);
+              
+                         var options = {
+                            sizeAxis: { minValue: d3.min(arrObjsMerged2,d=> +d.confirmed_cases_per_mil), maxValue: d3.max(arrObjsMerged2,d=> +d.confirmed_cases_per_mil) },
+                            displayMode: 'auto',   //auto, chart will automatically detect data set whether it is regions or points
+                            keepAspectRatio: true, // code to set max size of chart according to div size html
+                            colorAxis: {minValue: d3.min(arrObjsMerged2,d=> +d.confirmed_cases_per_mil), maxValue:d3.max(arrObjsMerged2,d=> +d.confirmed_cases_per_mil), colors: ['#fac934', '#40291C']},
+                          };
+              
+                      var chart = new google.visualization.GeoChart(document.getElementById('regions_div'));
+              
+                      chart.draw(data, options);
+                    }
+
+            
+          }).catch(error => console.log(error));
+          
+        }).catch(function(err) {
+          console.log(err)
+        })
   
+   }
+
+ geoMapCountriesByPerMil();
 /* ---------------------------------------------- */
 /* data parsing */
 /* ---------------------------------------------- */
