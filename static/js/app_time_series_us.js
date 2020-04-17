@@ -68,7 +68,7 @@ function getDataUS(){
   ]).then(([confirmed, deaths, population]) =>  {
   //console.log(confirmed);
   //console.log(deaths);
- console.log(population)
+ //console.log(population)
   for (var lastProperty in confirmed[0]);
  // console.log(lastProperty)
 
@@ -137,7 +137,7 @@ casesUS = casesUS.filter(d => d.per_million_cases_excluding_deaths );// get the 
 
 })// convert to a number
 
-console.log(casesUS)
+//console.log(casesUS)
 
 var ctx = document.getElementById("stackedBarChart").getContext('2d');
 
